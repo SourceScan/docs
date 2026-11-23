@@ -1,0 +1,17 @@
+legacy_html	legacy_markdown	replacement	reason
+/introduction/welcome-to-sourcescan	/introduction/welcome-to-sourcescan.md	index	Welcome page; legacy HTML currently redirects to /
+/introduction/near-native	/introduction/near-native.md	index	NEAR overview
+/product-overview/technical-overview	/product-overview/technical-overview.md	how-verification-works#from-api-to-registry-to-nearblocks	Current verification flow
+/product-overview/continuous-monitoring	/product-overview/continuous-monitoring.md	results#after-a-redeploy	What changes after a redeploy
+/product-overview/automated-verification	/product-overview/automated-verification.md	support#features	Feature status, automation unconfirmed
+/product-overview/supported-languages	/product-overview/supported-languages.md	support#languages	Language status
+/product-overview/verification-and-deployment	/product-overview/verification-and-deployment.md	quickstart	Rust build, deployment and verification
+/product-overview/verification-and-deployment/docker-image-verification	/product-overview/verification-and-deployment/docker-image-verification.md	builders	Builder image choice and pinning
+/product-overview/verification-and-deployment/verification-via-full-access-key	/product-overview/verification-and-deployment/verification-via-full-access-key.md	legacy#bos-and-full-access-keys	Unsupported credential flow
+/product-overview/contract-lookup	/product-overview/contract-lookup.md	lookup	NearBlocks, explorer and RPC lookup
+/tutorials/docker-verification	/tutorials/docker-verification.md	quickstart	Reproducible Rust tutorial
+/tutorials/full-access-key-verification	/tutorials/full-access-key-verification.md	legacy#bos-and-full-access-keys	Unsupported credential tutorial
+/additional-information/roadmap	/additional-information/roadmap.md	support#old-gitbook-pages	Historical roadmap status
+/additional-information/faq	/additional-information/faq.md	troubleshooting	Current troubleshooting
+/additional-information/support	/additional-information/support.md	troubleshooting#get-help	Public support links
+/additional-information/official-links	/additional-information/official-links.md	index#official-links	Current public destinations

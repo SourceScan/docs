@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>$title | SourceScan Docs</title>
+  <meta name="description" content="$description">
+$head_extra  <link rel="icon" href="$root/assets/sourcescan.png" type="image/png">
+  <link rel="stylesheet" href="$root/assets/docs.css">
+  <link rel="alternate" type="text/markdown" href="$raw" title="Markdown">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="brand" href="$root/"><img src="$root/assets/sourcescan.png" alt="" width="28" height="28"><span>SourceScan <span class="brand-docs">Docs</span></span></a>
+    <nav class="site-links" aria-label="SourceScan">
+      <a class="external" href="https://app.sourcescan.dev/">Explorer</a>
+      <a class="external" href="https://github.com/SourceScan">GitHub</a>
+    </nav>
+  </header>
+  <div class="$layout">
+    <nav class="sidebar" aria-label="Documentation">
+      <div class="nav-desktop">$nav_desktop</div>
+      <details class="nav-mobile">
+        <summary><span class="menu-label">Menu</span><span class="menu-current">$current</span></summary>
+        $nav_mobile
+      </details>
+    </nav>
+    <main id="main" tabindex="-1">
+      $eyebrow
+      $body
+      $pager
+    </main>
+    $toc
+  </div>
+  <footer class="site-footer">
+    <a href="$raw">This page in Markdown</a>
+    <a href="$root/llms.txt">Docs index for tools</a>
+    <a class="external" href="https://github.com/SourceScan/verification-guide">Docs source</a>
+  </footer>
+</body>
+</html>
