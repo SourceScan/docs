@@ -1,0 +1,24 @@
+  <meta name="referrer" content="origin">
+  <script>
+    (() => {
+      const canonical = new URL(document.querySelector('link[rel="canonical"]').href);
+      if (location.origin !== canonical.origin) return;
+
+      // Vercel reads document.referrer separately from the event passed to beforeSend.
+      const referrer = document.referrer;
+      if (referrer && referrer !== new URL(referrer).origin + "/") return;
+
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+      window.va("beforeSend", (event) => {
+        const url = new URL(event.url);
+        if (event.type !== "pageview" || url.origin !== canonical.origin || url.pathname !== canonical.pathname) {
+          return null;
+        }
+        return { type: "pageview", url: canonical.href };
+      });
+
+      const script = document.createElement("script");
+      script.src = "/_vercel/insights/script.js";
+      document.head.append(script);
+    })();
+  </script>

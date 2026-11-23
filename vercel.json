@@ -1,0 +1,34 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "python3 -m venv .venv && .venv/bin/python -m pip install --disable-pip-version-check --no-cache-dir -r site/requirements.txt",
+  "buildCommand": "if [ \"$VERCEL_ENV\" = production ]; then .venv/bin/python site/build.py --out dist/vercel --site-url https://docs.sourcescan.dev --analytics; else .venv/bin/python site/build.py --out dist/vercel --noindex; fi",
+  "outputDirectory": "dist/vercel",
+  "trailingSlash": true,
+  "headers": [
+    {
+      "source": "/:file(.*\\.md)",
+      "headers": [
+        { "key": "Content-Type", "value": "text/markdown; charset=utf-8" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/~gitbook/icon/",
+      "destination": "/assets/sourcescan.png"
+    },
+    {
+      "source": "/~gitbook/image/",
+      "has": [
+        {
+          "type": "query",
+          "key": "url",
+          "value": "https://3353735212-files\\.gitbook\\.io/.*bafkreihbwe3aj2pnzoy6vaqbalps53xvq7xsqrip2t2jyt37zkj3nj4uhm\\.png(?:\\?.*)?"
+        }
+      ],
+      "destination": "/assets/sourcescan.png"
+    }
+  ]
+}

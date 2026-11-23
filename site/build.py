@@ -216,8 +216,9 @@ def description(raw):
     return ""
 
 
-def build_pages(out, pages, site_url, noindex):
+def build_pages(out, pages, site_url, noindex, analytics):
     template = Template((SOURCE / "page.html").read_text(encoding="utf-8"))
+    analytics_head = (SOURCE / "analytics.html").read_text(encoding="utf-8") if analytics else ""
     for page, info in PAGES.items():
         raw = pages[page]
         directory = info.directory
@@ -236,7 +237,7 @@ def build_pages(out, pages, site_url, noindex):
         if noindex:
             head.append('  <meta name="robots" content="noindex">\n')
         write(out, posixpath.join(directory, "index.html"), template.substitute(
-            head_extra="".join(head),
+            head_extra="".join(head) + analytics_head,
             title=escape(raw.splitlines()[0].removeprefix("# ")),
             description=escape(description(raw), quote=True),
             root=relative(directory, ""),
@@ -338,18 +339,22 @@ def main():
                              "sitemaps and absolute links in llms.txt")
     parser.add_argument("--noindex", action="store_true",
                         help="for staging: robots.txt disallows all crawling and every page carries noindex")
+    parser.add_argument("--analytics", action="store_true",
+                        help="include Vercel Web Analytics on canonical production docs pages")
     args = parser.parse_args()
     site_url = args.site_url.rstrip("/")
     url = urlsplit(site_url)
     if site_url and (url.scheme != "https" or not url.hostname or url.query or url.fragment or url.username):
         parser.error("--site-url must be an HTTPS base URL without credentials, query or fragment")
+    if args.analytics and (args.noindex or site_url != "https://docs.sourcescan.dev"):
+        parser.error("--analytics requires an indexable https://docs.sourcescan.dev build")
     out = args.out.resolve()
     if out.exists() and (not out.is_dir() or any(out.iterdir())):
         parser.error("--out must be a new or empty directory")
     out.mkdir(parents=True, exist_ok=True)
     pages = {page: (SOURCE / "content" / (page + ".md")).read_text(encoding="utf-8")
              for page in PAGES}
-    build_pages(out, pages, site_url, args.noindex)
+    build_pages(out, pages, site_url, args.noindex, args.analytics)
     build_aliases(out, site_url)
     build_indexes(out, pages, site_url, args.noindex)
     shutil.copytree(SOURCE / "assets", out / "assets")
