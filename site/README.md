@@ -19,7 +19,13 @@ python3 site/tests/check_site.py dist/preview --expect-noindex --base http://127
 python3 site/tests/browser_check.py http://127.0.0.1:8000/ dist/browser-report
 ```
 
-## Production
+## Vercel Git builds
+
+The root [vercel.json](../vercel.json) installs the pinned renderer in a virtual environment and publishes `dist/vercel`. With Vercel system environment variables enabled, `VERCEL_ENV=production` adds the public canonical URLs, both sitemaps and Vercel Web Analytics. Other builds block indexing and omit analytics. Enable Web Analytics in the docs project before the production deployment. The analytics bootstrap runs on `https://docs.sourcescan.dev` and sends canonical page views with origin-only referrers.
+
+Run `node site/tests/check_vercel.cjs PROD PREVIEW` with the production and preview output directories to check the routing config and analytics behavior offline.
+
+## Manual production upload
 
 Build into a new or empty output directory. A production build includes the public canonical URLs, both sitemaps and an indexable robots file; do not promote the noindex preview.
 
@@ -29,4 +35,4 @@ python3 site/tests/check_site.py dist/release/public --expect-site-url https://d
 cp site/deploy/vercel.json dist/release/
 ```
 
-The Vercel upload root is `dist/release/`: the routing configuration sits beside `public/`, not inside it. The generated empty `.nojekyll` is not needed on Vercel and can be omitted from the upload after validation. Upload only the static output and routing configuration to the docs project, never the source checkout. Merging this repository does not itself publish a deployment.
+Use `dist/release/` as the Vercel upload root, with the routing configuration beside `public/`. The generated empty `.nojekyll` can be omitted after validation. Upload only the static output and routing configuration to the docs project.

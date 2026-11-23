@@ -57,4 +57,4 @@ Missing metadata, failed builds, hash differences and missing source.
 
 - [SourceScan explorer](https://app.sourcescan.dev/) and the [public API reference](https://api.sourcescan.dev/)
 - NearBlocks on [mainnet](https://nearblocks.io/) and [testnet](https://testnet.nearblocks.io/)
-- [SourceScan on GitHub](https://github.com/SourceScan) and the [original verification guide](https://github.com/SourceScan/verification-guide)
+- [SourceScan on GitHub](https://github.com/SourceScan) and the [original verification guide](https://github.com/SourceScan/docs/blob/main/guides/original-verification-walkthrough.md)
