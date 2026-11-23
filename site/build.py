@@ -258,7 +258,6 @@ def build_aliases(out, site_url):
     source_anchors = rows("legacy-anchors.tsv")
     for row in rows("legacy-paths.tsv"):
         legacy_html = row["legacy_html"]
-        legacy_md = row["legacy_markdown"].lstrip("/")
         replacement = row["replacement"]
         page = replacement.split("#")[0]
         label = escape(PAGES[page].label)
@@ -296,6 +295,9 @@ def build_aliases(out, site_url):
 </body>
 </html>
 """)
+        legacy_md = row["legacy_markdown"].lstrip("/")
+        if not legacy_md:
+            continue
         md_directory = posixpath.dirname(legacy_md)
         md_target = markdown_link(replacement, md_directory)
         web_target = html_link(replacement, md_directory)
@@ -360,7 +362,7 @@ def main():
     shutil.copytree(SOURCE / "assets", out / "assets")
     shutil.copytree(SOURCE.parent / "images", out / "images")
     (out / ".nojekyll").touch()
-    print(f"Wrote {len(PAGES)} docs pages and {len(rows('legacy-paths.tsv'))} legacy route pairs to {out}")
+    print(f"Wrote {len(PAGES)} docs pages and {len(rows('legacy-paths.tsv'))} legacy HTML routes to {out}")
 
 
 if __name__ == "__main__":
