@@ -1,5 +1,7 @@
 # Verifying Smart Contracts on NEAR: Step-by-Step Guide
 
+For current instructions, see the [SourceScan docs](https://docs.sourcescan.dev/): [look up a contract](https://docs.sourcescan.dev/lookup/), [read a verification result](https://docs.sourcescan.dev/results/), or [verify a Rust contract](https://docs.sourcescan.dev/quickstart/). The original walkthrough is preserved below. To build or update the docs site, see the [maintainer guide](site/README.md).
+
 Source code verification provides transparency for users interacting with smart contracts. By uploading the source code, tools like Etherscan match the compiled code with the on-chain code. This ensures end users know what they are "digitally signing" and can audit the code independently to verify its functionality.
 
 Ensuring reproducible WebAssembly (WASM) builds is essential for NEAR contracts. Compiling WASM can result in different outputs depending on the hardware, operating systems, and environments, making it difficult to confirm that the on-chain bytecode matches the original source. NEP-330 addresses this by extending support for contract source metadata, enabling reproducible WASM builds and verifiable source code.
@@ -192,7 +194,7 @@ Now that we have successfully deployed our contract with reproducible WASM code,
 
 First, navigate to the Nearblocks contract page for your deployed contract. In this case, the URL would be:
 
-[https://testnet.nearblocks.io/address/buildguide.testnet?tab=contract](https://testnet.nearblocks.io/address/buildguide.testnet?tab=contract)
+[https://testnet.nearblocks.io/address/buildguide.testnet/contract/code](https://testnet.nearblocks.io/address/buildguide.testnet/contract/code)
 
 Once on the contract page, click the **"Contract Code"** button. This will display the encoded WASM of your contract, along with an option to **"Verify and Publish"** the contract. Click on this option, and a new page will open.
 
@@ -200,7 +202,7 @@ Once on the contract page, click the **"Contract Code"** button. This will displ
 
 Next, you will be redirected to the verification page at the following URL:
 
-[https://testnet.nearblocks.io/verify-contract?accountId=buildguide.testnet&selectedVerifier=v2-verifier.sourcescan.testnet](https://testnet.nearblocks.io/verify-contract?accountId=buildguide.testnet&selectedVerifier=v2-verifier.sourcescan.testnet)
+[https://testnet.nearblocks.io/verify-contract?account=buildguide.testnet](https://testnet.nearblocks.io/verify-contract?account=buildguide.testnet)
 
 ![nearblocks #2](./images/nearblocks-2.png)
 
@@ -213,6 +215,6 @@ In our case, the message is:
 
 With these steps, you've completed the verification process, and the contract's source code is now publicly accessible on Nearblocks at the following URL:
 
-[https://testnet.nearblocks.io/address/buildguide.testnet?tab=contract](https://testnet.nearblocks.io/address/buildguide.testnet?tab=contract)
+[https://testnet.nearblocks.io/address/buildguide.testnet/contract/code](https://testnet.nearblocks.io/address/buildguide.testnet/contract/code)
 
 ![nearblocks #4](./images/nearblocks-4.png)

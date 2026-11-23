@@ -1,0 +1,11 @@
+legacy_html	fragments	replacement
+/product-overview/technical-overview	reproducibility-through-docker-images	builders
+/product-overview/technical-overview	enhanced-security-with-jwt-authentication	legacy#bos-and-full-access-keys
+/product-overview/technical-overview	decentralized-storage-options	how-verification-works#source-snapshots
+/product-overview/verification-and-deployment/docker-image-verification	building-wasm-in-a-reproducible-environment	quickstart#pin-the-source-and-build
+/tutorials/docker-verification	id-1.-installing-docker	quickstart#set-up-the-tools
+/tutorials/docker-verification	id-2.-compilation,option-1-using-the-sourcescan-rust-builder,script-parameters,running-the-script,with-parameters,without-parameters,option-2-manual-compilation-using-docker,entering-the-docker-environment	quickstart#pin-the-source-and-build
+/tutorials/docker-verification	pulling-the-official-docker-image	builders#pin-the-image
+/tutorials/docker-verification	id-3.-verifying-contract-compilation	troubleshooting#rebuilt-and-deployed-hashes-differ
+/tutorials/docker-verification	id-4.-deploying-the-contract	quickstart#deploy-the-reproducible-wasm
+/tutorials/docker-verification	id-5.-verification-in-bos-app	legacy#bos-and-full-access-keys
