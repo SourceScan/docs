@@ -172,11 +172,11 @@ def main():
     route_results = []
     for row in legacy:
         alias = resolve(dist, row["legacy_html"] + "/")
-        md = dist / row["legacy_markdown"].lstrip("/")
+        md = row["legacy_markdown"]
         if alias is None:
             failures.append(f"legacy HTML missing: {row['legacy_html']}")
-        if not md.is_file():
-            failures.append(f"legacy Markdown missing: {row['legacy_markdown']}")
+        if md and not (dist / md.lstrip("/")).is_file():
+            failures.append(f"legacy Markdown missing: {md}")
         page_name, _, fragment = row["replacement"].partition("#")
         target = dist / ("" if page_name == "index" else page_name) / "index.html"
         if not target.is_file() or (fragment and fragment not in page(target).ids):
@@ -186,6 +186,12 @@ def main():
         target = dist / ("" if page_name == "index" else page_name) / "index.html"
         if not target.is_file() or (fragment and fragment not in page(target).ids):
             failures.append(f"legacy anchor replacement missing: {row['replacement']}")
+
+    widget_path = "/introduction/sourcescan/"
+    widget_alias = resolve(dist, widget_path)
+    if widget_alias is None or not any(tag == "a" and urljoin(widget_path, href) == "/"
+                                      for tag, href in page(widget_alias).links):
+        failures.append(f"{widget_path} must link to the docs homepage")
 
     if args.base:
         base = args.base.rstrip("/")
@@ -210,15 +216,18 @@ def main():
             route_results.append((row["legacy_html"], status, urlsplit(final).path, ok))
             if not ok:
                 failures.append(f"legacy HTML route failed: {row['legacy_html']} -> {status}")
-            status, kind, body, final = get(row["legacy_markdown"])
+            md = row["legacy_markdown"]
+            if not md:
+                continue
+            status, kind, body, final = get(md)
             ok = status == 200 and "documentation moved" in body
-            route_results.append((row["legacy_markdown"], status, kind, ok))
+            route_results.append((md, status, kind, ok))
             if not ok:
-                failures.append(f"legacy Markdown route failed: {row['legacy_markdown']} -> {status}")
+                failures.append(f"legacy Markdown route failed: {md} -> {status}")
 
     print(f"HTML files: {len(html_files)}  Markdown files: {len(md_files)}")
     print(f"Distinct internal link targets: {len(checked['internal targets'])}  fragment checks: {checked['fragments']}")
-    print(f"Legacy route pairs: {len(legacy)}  legacy fragment rows: {len(anchors)}  current pages: {checked['current pages']}")
+    print(f"Legacy HTML routes: {len(legacy)}  legacy fragment rows: {len(anchors)}  current pages: {checked['current pages']}")
     print(f"Mode: {'noindex' if args.expect_noindex else 'indexable'}, site URL: {site_url or 'none (relative only)'}")
     if route_results:
         passed = sum(1 for result in route_results if result[3])

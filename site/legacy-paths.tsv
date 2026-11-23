@@ -1,4 +1,5 @@
 legacy_html	legacy_markdown	replacement	reason
+/introduction/sourcescan		index	Docs link in the retired SourceScan BOS widget
 /introduction/welcome-to-sourcescan	/introduction/welcome-to-sourcescan.md	index	Welcome page; legacy HTML currently redirects to /
 /introduction/near-native	/introduction/near-native.md	index	NEAR overview
 /product-overview/technical-overview	/product-overview/technical-overview.md	how-verification-works#from-api-to-registry-to-nearblocks	Current verification flow
