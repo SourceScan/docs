@@ -1,6 +1,6 @@
 # Support status
 
-This page separates what is known to work from what does not, including features the old GitBook docs described. Each row was checked on 23 November 2026 against public source code and read-only responses from the live services.
+This page separates what is known to work from what does not, including features the old GitBook docs described. Rows were checked on 23 November 2026 against public source code and read-only responses from the live services. Rows on hosted GHCR builds, source snapshot forms and block selection were updated on 25 November 2026.
 
 | Label | Meaning |
 | --- | --- |
@@ -24,9 +24,9 @@ No verification request was submitted for this review. A row marked **Verified**
 
 | Builder | Status | Evidence |
 | --- | --- | --- |
-| `sourcescan/cargo-near` with hosted verification | **Verified** | Accepted by every NEAR CLI allowlist. All 77 mainnet records that matched deployed code on 23 November 2026 name this image. |
+| `sourcescan/cargo-near` with hosted verification | **Verified** | Accepted by the NEAR CLI allowlist. The deployed metadata for all 77 matching Mainnet accounts examined on 23 November 2026 named this image. |
 | `ghcr.io/near/cargo-near` with `near contract verify` 0.31.0 or later | **Verified** | [NEAR CLI 0.31.0 release](https://github.com/near/near-cli-rs/releases/tag/v0.31.0) and [allowlist](https://github.com/near/near-cli-rs/blob/5cdedc38e09b23b84ae9d69f6abbb26568dda579/src/commands/contract/verify/mod.rs#L224-L236). |
-| `ghcr.io/near/cargo-near` with hosted verification, as deployed on 23 November 2026 | **Unconfirmed** | Depends on the NEAR CLI version inside the deployed verifier: 0.31.0 and later accept GHCR. The deployed verifier's public source does not fix that version, the running version is not published, and no record names a GHCR image. A verifier release can change this row. |
+| `ghcr.io/near/cargo-near` with hosted verification | **Unconfirmed** | Production ran NEAR CLI 0.31.1 on 25 November 2026. That version allows GHCR, but hosted verification has not been confirmed end to end. Registry records do not store the builder image. |
 | Any other image, including `docker.io/sourcescan/cargo-near` | **Unsupported** | The NEAR CLI allowlist compares names exactly. Some older testnet records name an image outside today's allowlist; re-verifying those contracts now would fail. |
 | Build parameters through `passed_env` | **Unsupported** | The [cargo-near README](https://github.com/near/cargo-near/blob/c8facb827d10feb4aeef571a0d6a4ec044097d0c/README.md#L157-L160) says SourceScan and NearBlocks do not yet verify them. |
 
@@ -37,11 +37,12 @@ See [choose a builder image](builders.md) for how to pin either image.
 | Feature | Status | Evidence |
 | --- | --- | --- |
 | Mainnet and testnet | **Verified** | Separate registries and API data for each network. |
-| Public repositories outside GitHub | **Unconfirmed** | The verifier accepts any public HTTPS or SSH Git URL, but all 134 testnet and 77 mainnet records that match deployed code point to `github.com`. |
-| Source snapshots that are not Git commits, such as `ipfs://` | **Unsupported** | The hosted verifier [requires a `git+` URL pinned to a full commit SHA](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/src/services/github/github.service.ts), although NEP-330 allows other forms. |
-| Private repositories | **Unsupported** | The verifier [refuses repositories that are not public](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/src/controllers/verify/verify.controller.ts#L120-L137). |
-| Verification against a chosen historical block | **Unsupported** | The hosted verifier compares with the latest final block. |
-| Status shown as mismatch after a redeploy | **Verified** | Explorers compare hashes at view time. NearBlocks shows its verify prompt instead of a mismatch label. |
+| Public repositories outside GitHub | **Unconfirmed** | The verifier and NEAR CLI accept any public HTTPS Git URL, but all 134 testnet and 77 mainnet records that match deployed code point to `github.com`. The SourceScan explorer links only GitHub snapshots. |
+| Source snapshots that are not Git commits, such as `ipfs://` | **Unsupported** | The hosted verifier [requires a `git+` URL pinned to a full commit SHA](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/services/github/github.service.ts), although NEP-330 allows other forms. |
+| Snapshots pinned only by `#SHA`, or in `git@host:owner/repo` form | **Unsupported** | The hosted precheck can accept these forms, but the NEAR CLI rebuild takes the commit only from `?rev=` and cannot parse the shorthand. See [source snapshots](how-verification-works.md#source-snapshots). |
+| Private repositories | **Unsupported** | The verifier [refuses repositories that are not public](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L150-L171). |
+| Verification at a chosen block | **Verified in source** | A positive `blockId` in a direct API request selects the block for the metadata, code and rebuild, if the verifier's RPC nodes still serve it. NearBlocks does not send one. If verification writes a record, it can replace a newer one even if the account now runs other code. [Verify controller](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L96-L143) |
+| Status shown as mismatch after a redeploy | **Verified** | Explorers compare hashes at view time; the SourceScan explorer when you open a contract page. NearBlocks shows its verify prompt instead of a mismatch label. |
 | Records revoked automatically after a redeploy | **Unsupported** | Records stay until a new verification replaces them. |
 | Automatic re-verification of new deployments | **Unconfirmed** | No public service, schedule or source for it is published. Request verification again after each deployment. |
 | Source lookup by code hash | **Verified** | API `by-code-hash` and registry `get_contracts_by_code_hash`. |
