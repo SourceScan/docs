@@ -14,7 +14,7 @@ If the deployed WASM lacks these fields, it cannot be verified as it stands: reb
 
 Check the repository and exact commit in `source_code_snapshot`. Open both from a signed-out browser session. Make sure all build inputs are committed and every dependency can be fetched publicly. Keep credentials out of commits and build inputs.
 
-The hosted verifier accepts only `git+` snapshots over HTTPS or SSH, pinned to a full 40-character commit; see [source snapshots](how-verification-works.md#source-snapshots). Its answers tell you which rule failed.
+Use a public HTTPS repository pinned with `?rev=` to the full 40-character commit, as `git+https://github.com/OWNER/REPO?rev=COMMIT`; see [source snapshots](how-verification-works.md#source-snapshots). The verifier's answers tell you which rule failed.
 
 | Message | Cause |
 | --- | --- |
@@ -23,9 +23,10 @@ The hosted verifier accepts only `git+` snapshots over HTTPS or SSH, pinned to a
 | `Repository URL must use HTTPS or SSH` | Another scheme, such as `http://` or `file://`. |
 | `Repository URL must not contain secrets` | A user name or password in the URL. |
 | `Repository is not publicly accessible` | The repository is private or does not exist. |
-| `Pre-verification checks failed: ...` with HTTP 500 | Another fetch failure, including a commit that is not in the public repository. |
+| `Pre-verification checks failed: ...` with HTTP 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
+| A NEAR CLI error with HTTP 500, after the checks above pass | Read the error for the cause. If the snapshot is pinned only by `#SHA` or uses `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=` instead. These forms can pass the format checks but fail the rebuild. |
 
-[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/src/services/github/github.service.ts) and [pre-verification](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/src/controllers/verify/verify.controller.ts#L120-L169)
+[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/services/github/github.service.ts) and [pre-verification](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L101-L200)
 
 ## Image cannot be pulled or build fails
 
@@ -33,9 +34,9 @@ Compare the registry, repository, tag, digest and platform in `build_environment
 
 ## Rebuilt and deployed hashes differ
 
-Check the account, network and current finalized hash. Replay the exact published commit, image digest, contract path, features and build command. Compare the WASM before any stripping, optimization or other post-processing. Compare the same hash encoding: NEAR reports code hashes in base58, while `sha256sum` prints hex. A deployment made while the request runs also changes the code being compared.
+Check the account, network and current finalized hash. Replay the exact published commit, image digest, contract path, features and build command. Compare the WASM before any stripping, optimization or other post-processing. Compare the same hash encoding: NEAR reports code hashes in base58, while `sha256sum` prints hex. The hosted verifier compares the code deployed at the block where it read the metadata, so a deployment after that block is not part of the request; request again once the new code is final.
 
-To reproduce the comparison locally, with Docker running:
+To reproduce the comparison locally, run this with Docker running. To check an earlier block, such as the one a record names, replace `now` with `at-block-height HEIGHT`; old blocks need an archival RPC.
 
 ```bash
 near contract verify deployed-at buildguide.testnet network-config testnet now
@@ -59,7 +60,7 @@ A service error or timeout leaves the outcome unknown. [Check the current hash a
 
 ## Status looks wrong
 
-NearBlocks shows its **Verify and Publish** prompt when a record exists for older code, when no record exists, and when its registry call fails. The SourceScan explorer shows **Code Hash Mismatches** when the code lookup fails or the account runs no contract.
+NearBlocks shows its **Verify and Publish** prompt when a record exists for older code, when no record exists, and when its registry call fails. The SourceScan explorer separates those cases, but shows **No code is deployed on this account** also for an account that does not exist, and **Deployed code status unknown** when its RPC read fails.
 
 If your own check says the account has no contract while an explorer shows a match, you probably compared the `code_hash` from `view_account`. Accounts that run a global contract show `11111111111111111111111111111111` there. Use [`view_code`](lookup.md#1-get-the-deployed-code-hash) instead. [Read the result](results.md#outcomes) for how to tell these apart.
 

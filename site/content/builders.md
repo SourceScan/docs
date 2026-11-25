@@ -15,7 +15,7 @@ Two image families are accepted for verification. Both are published for `linux/
 | Tags | [Docker Hub tag list](https://hub.docker.com/r/sourcescan/cargo-near/tags) | [GHCR package](https://github.com/near/cargo-near/pkgs/container/cargo-near) |
 | Used by `cargo near new` in cargo-near 0.23.0 | Yes | No |
 
-Use Docker Hub `sourcescan/cargo-near` if you want hosted verification through NearBlocks today. Every NEAR CLI release that can verify accepts it, and all 77 mainnet records that still matched deployed code on 23 November 2026 name this image. No record on either network names a GHCR image, and the NEAR CLI version inside the deployed hosted verifier is not published, so hosted acceptance of GHCR is unconfirmed.
+Use Docker Hub `sourcescan/cargo-near` for hosted verification through NearBlocks. It is the cargo-near 0.23.0 template default. On 23 November 2026, the deployed metadata for all 77 Mainnet accounts whose code matched their records named this image.
 
 Use GHCR `ghcr.io/near/cargo-near` when you want NEAR's own builder and can verify locally with NEAR CLI 0.31.0 or later. Do not count on hosted verification of a GHCR-built contract until it is confirmed in [support status](support.md#builder-images).
 
@@ -25,12 +25,12 @@ Use GHCR `ghcr.io/near/cargo-near` when you want NEAR's own builder and can veri
 | --- | --- | --- |
 | `near contract verify` in NEAR CLI 0.31.0 and later | **Verified** | **Verified** |
 | `near contract verify` in NEAR CLI 0.21.0 to 0.30.x | **Verified** | **Unsupported** |
-| Hosted SourceScan verifier as deployed on 23 November 2026, used by NearBlocks | **Verified** | **Unconfirmed** |
+| Hosted SourceScan verifier, used by NearBlocks, running NEAR CLI 0.31.1 on 25 November 2026 | **Verified** | **Unconfirmed**: allowed, not yet tested end to end |
 | Any other image | **Unsupported** | **Unsupported** |
 
 NEAR CLI checks the image name against an exact-match allowlist before building. The `verify` command has had one since it first shipped in NEAR CLI 0.21.0, naming only `sourcescan/cargo-near`; [NEAR CLI 0.31.0](https://github.com/near/near-cli-rs/releases/tag/v0.31.0) added the GHCR image ([allowlist in 0.31.1](https://github.com/near/near-cli-rs/blob/5cdedc38e09b23b84ae9d69f6abbb26568dda579/src/commands/contract/verify/mod.rs#L224-L236), [exact match](https://github.com/near/near-verify-rs/blob/2dc29f6408c72a96ac17becef3384c5152d09867/src/types/contract_source_metadata/validate.rs#L59-L72)). The `--no-image-whitelist` flag skips the check for a local rebuild only, and the hosted verifier does not use it.
 
-So hosted GHCR support depends on the NEAR CLI version inside the deployed verifier: 0.31.0 or later accepts GHCR images, earlier versions reject them. The public source of the deployed verifier installs NEAR CLI without a fixed version, and the version actually running is not published. [Backend Dockerfile](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/Dockerfile#L49-L50) A verifier release can move this row to either **Verified** or **Unsupported**, so check the date on [support status](support.md#builder-images) before relying on it.
+The hosted verifier ran NEAR CLI 0.31.1 when checked on 25 November 2026. That version allows GHCR images, but hosted GHCR verification has not been confirmed end to end. The verifier's public Dockerfile installs NEAR CLI without a fixed version, so rebuilding the service can change the version. [Backend Dockerfile](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/Dockerfile#L49-L50)
 
 ## Pin the image
 
@@ -75,4 +75,4 @@ The metadata is compiled into the WASM, so changing any of these fields changes 
 
 ## Updating for a new release
 
-Pick the new tag, copy its digest from the same registry, update `container_build_command` if the version range requires it, then commit, build, deploy and request verification again. On 23 November 2026, cargo-near 0.23.0 is the latest release, and its template still names Docker Hub. Proposals to move the template to GHCR were still open in the cargo-near repository.
+Pick a tag from a published release, so the image traces back to the workflow that built it. Copy its digest from the same registry, update `container_build_command` if the version range requires it, then commit, build, deploy and request verification again. On 23 November 2026, cargo-near 0.23.0 is the latest release, and its template still names Docker Hub. Proposals to move the template to GHCR were still open in the cargo-near repository.

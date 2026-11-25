@@ -1,6 +1,6 @@
 # Registry and API
 
-SourceScan data can be read two ways: from the public HTTP API at `https://api.sourcescan.dev`, or straight from the registry contracts through any NEAR RPC endpoint. Everything on this page is read-only and needs no key.
+SourceScan data can be read two ways: from the public HTTP API at `https://api.sourcescan.dev`, or straight from the registry contracts through any NEAR RPC endpoint. The `GET` endpoints and registry view methods are read-only and need no key. `POST /api/verify/rust` is the exception: it runs a verification and can publish a record.
 
 ## HTTP API
 
@@ -12,11 +12,13 @@ The [API reference](https://api.sourcescan.dev/) lists these endpoints. No authe
 | `GET /api/contracts/count?networkId=testnet` | `{networkId, count}`, the number of records |
 | `GET /api/ipfs/structure?cid={cid}&path={path}` | `{cid, structure}`, the files and folders at `path` in an archived snapshot. Omit `path` for the root |
 | `GET /ipfs/{cid}/{filePath}` | The bytes of one archived file |
-| `POST /api/verify/rust` | Runs a whole verification with `networkId`, `accountId` and an optional `blockId`, answers when it finishes, and can publish a record. Use it through [NearBlocks](quickstart.md#request-verification-in-nearblocks) |
+| `POST /api/verify/rust` | Runs a whole verification for `networkId` and `accountId`, answers when it finishes, and can publish a record. Use it through [NearBlocks](quickstart.md#request-verification-in-nearblocks) |
 
-Leave out `networkId` and you get mainnet. Any value other than `mainnet` returns testnet data, and the response echoes the value you sent, not the network that was read, so a typo such as `networkId=mainet` returns testnet data labelled `mainet`. Send exactly `mainnet` or `testnet`. [Contracts controller](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/src/controllers/contracts/contracts.controller.ts#L21-L65)
+For the two `GET /api/contracts/…` endpoints, omitting `networkId` selects Mainnet. An explicit value other than `mainnet` selects Testnet, and the response echoes the input, so a typo such as `networkId=mainet` returns Testnet data labelled `mainet`. Send exactly `mainnet` or `testnet`. The verification `POST` requires one of those two values and rejects anything else. [Contracts controller](https://github.com/SourceScan/verifier-back/blob/d518da7236a5b337da118dc668794cebde82a20b/nest/src/controllers/contracts/contracts.controller.ts#L21-L65)
 
 NearBlocks sends verification requests to `https://api-v2.sourcescan.dev`, which publishes the same API description. Whether the two hosts are one deployment is not published.
+
+A verify request can also carry `blockId`. Omit it, as NearBlocks does, or send 0 to start from the latest finalized block. A positive integer selects that block height, which the verifier's RPC nodes must still serve. When verification writes a record, it replaces the account's previous record and describes the code at the selected block, even if the account now runs other code. [Verify controller](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L96-L143)
 
 In `structure`, `Type` 1 is a folder and `Type` 2 is a file. A `path` that does not exist returns an empty list, not an error. The API has no endpoint to list or search all records; use the registry for that.
 
@@ -44,7 +46,7 @@ Call these view methods with an RPC `call_function` query, as in [the lookup gui
 | Field | Meaning |
 | --- | --- |
 | `code_hash` | Base58 SHA-256 of the WASM that matched when the record was written. Compare it with the account's current code hash |
-| `block_height` | Block height stored with the record |
+| `block_height` | The block at which the verifier read the metadata and deployed code. Records written by earlier verifier versions may store a later block |
 | `cid` | IPFS CID of the archived source snapshot |
 | `lang` | Source language. Every record on both networks was `rust` on 23 November 2026 |
 | `votes`, `comments` | Public feedback on the record. Not part of verification |
