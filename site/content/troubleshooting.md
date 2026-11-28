@@ -14,22 +14,28 @@ If the deployed WASM lacks these fields, it cannot be verified as it stands: reb
 
 Check the repository and exact commit in `source_code_snapshot`. Open both from a signed-out browser session. Make sure all build inputs are committed and every dependency can be fetched publicly. Keep credentials out of commits and build inputs.
 
-Use a public HTTPS repository pinned with `?rev=` to the full 40-character commit, as `git+https://github.com/OWNER/REPO?rev=COMMIT`. See [source snapshots](how-verification-works.md#source-snapshots). The table lists selected responses from the hosted verifier.
+Use a public HTTPS repository pinned with `?rev=` to the full 40-character commit, as `git+https://github.com/OWNER/REPO?rev=COMMIT`. See [source snapshots](how-verification-works.md#source-snapshots).
 
-| Message | HTTP status | Cause |
+## Hosted verifier responses
+
+The table lists selected responses from the hosted verifier.
+
+| Message | HTTP status | Cause and next step |
 | --- | --- | --- |
+| `Could not read the verifier registry for <account>. Please retry later.` | 503 | The registry read failed or returned a malformed reply. The verifier stops before looking up metadata or starting a build. Wait and retry the request. |
 | `No source metadata found for <account>` | 400 | The metadata read returned no metadata or no `build_info`. [Check the deployed metadata](#no-source-metadata-or-build-info). |
+| `Block <n> is older than the verified record for <account> at block <m>. Verify at block <m> or later.` | 409 | The deployed hash differs from the recorded hash, and the pinned block is below the record's `block_height`. Choose the recorded height or a later one. Omit `blockId` to use the latest finalized block. |
 | `Source snapshot must use git+ URL format` | 400 | The snapshot is not a `git+` URL, for example an `ipfs://` reference. |
 | `Source snapshot must pin a full 40-character commit SHA` | 400 | No commit, or a short or symbolic one such as a branch name. |
 | `Source snapshot must not contain conflicting commit SHAs` | 400 | The `?rev=` query parameter and `#` fragment pin different commits. Keep only `?rev=` with the correct full SHA. |
 | `Repository URL must use HTTPS or SSH` | 400 | Another scheme, such as `http://` or `file://`. |
 | `Repository URL must not contain secrets` | 400 | A password in the URL or a user name in an HTTPS URL. |
 | `Repository is not publicly accessible: <repository URL>. Contract verification requires public repositories.` | 400 | Git could not authenticate or find the repository. |
-| `Pre-verification checks failed: ...` | 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
+| `Pre-verification checks failed: <error>` | 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
 | `Contract verification failed` | 400 | NEAR CLI did not report a match, or the rebuilt hash differs from the deployed hash at the verification block. [Compare the hashes](#rebuilt-and-deployed-hashes-differ). |
 | Any other message with HTTP 500 | 500 | Read the error for the cause. The rebuild, IPFS archive or registry write can fail. If NEAR CLI rejects a snapshot pinned only by `#SHA` or using `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=`. |
 
-[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/services/github/github.service.ts), [pre-verification](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L101-L200) and [rebuild and record write](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L202-L309)
+[Registry read response](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/controllers/verify/verify.controller.ts#L86-L101), [pre-verification](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/controllers/verify/verify.controller.ts#L111-L232), [snapshot parsing](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/services/github/github.service.ts#L29-L52), [commit selection and URL checks](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/services/github/github.service.ts#L82-L168) and [rebuild and record write](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/controllers/verify/verify.controller.ts#L234-L340)
 
 ## Image cannot be pulled or build fails
 
@@ -55,11 +61,11 @@ near config edit-connection testnet --key rpc_url --value https://archival-rpc.t
 
 ## Already verified, or source is missing
 
-If the verifier answers `Code hash didn't change`, the account already has a record for this code. Use [lookup](lookup.md) to see it. After a deployment, wait for finality and reload the explorer.
+If the verifier answers HTTP 400 with `Code hash didn't change`, the account already has a record for the code at the selected block. The verifier returns this response before cloning the repository or starting a build. Use [lookup](lookup.md) to see the record. After a deployment, wait for finality and reload the explorer. [Unchanged hash check](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/controllers/verify/verify.controller.ts#L155-L162)
 
 If a record exists but the source browser is empty, list the CID through the [API](api.md#2-list-the-archived-source). NearBlocks shows only `.rs`, `.toml` and `.lock` files and hides folders such as `.cargo`, so other files, including `.cargo/config.toml`, appear only through the API. If the IPFS gateway is unavailable, use the Git snapshot named in the metadata.
 
-A service error or timeout leaves the outcome unknown. [Check the current hash and record](lookup.md#check-it-yourself-with-rpc) before submitting again.
+If the request times out or the outcome is unclear, [check the current hash and record](lookup.md#check-it-yourself-with-rpc) before submitting again.
 
 ## Status looks wrong
 
