@@ -25,12 +25,12 @@ Use GHCR `ghcr.io/near/cargo-near` when you want NEAR's own builder and can veri
 | --- | --- | --- |
 | `near contract verify` in NEAR CLI 0.31.0 and later | **Verified** | **Verified** |
 | `near contract verify` in NEAR CLI 0.21.0 to 0.30.x | **Verified** | **Unsupported** |
-| Hosted SourceScan verifier, used by NearBlocks, running NEAR CLI 0.31.1 on 25 November 2026 | **Verified** | **Unconfirmed** |
+| Hosted SourceScan verifier, used by NearBlocks, with NEAR CLI 0.31.1 pinned in the 28 November 2026 deploy | **Verified** | **Unconfirmed** |
 | Any other image | **Unsupported** | **Unsupported** |
 
 NEAR CLI checks the image name against an exact-match allowlist before building. The `verify` command has had one since it first shipped in NEAR CLI 0.21.0, naming only `sourcescan/cargo-near`; [NEAR CLI 0.31.0](https://github.com/near/near-cli-rs/releases/tag/v0.31.0) added the GHCR image ([allowlist in 0.31.1](https://github.com/near/near-cli-rs/blob/5cdedc38e09b23b84ae9d69f6abbb26568dda579/src/commands/contract/verify/mod.rs#L224-L236), [exact match](https://github.com/near/near-verify-rs/blob/2dc29f6408c72a96ac17becef3384c5152d09867/src/types/contract_source_metadata/validate.rs#L59-L72)). The `--no-image-whitelist` flag skips the check for a local rebuild only, and the hosted verifier does not use it.
 
-The hosted verifier ran NEAR CLI 0.31.1 when checked on 25 November 2026. That version allows GHCR images, but hosted GHCR verification has not been confirmed end to end. The verifier's public Dockerfile installs NEAR CLI without a fixed version, so rebuilding the service can change the version. [Backend Dockerfile](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/Dockerfile#L49-L50)
+The verifier backend deployed on 28 November 2026 pins `near-cli-rs` to 0.31.1. That version allows GHCR images. Hosted GHCR verification remains unconfirmed end to end. [Backend Dockerfile](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/Dockerfile#L49-L51)
 
 ## Pin the image
 

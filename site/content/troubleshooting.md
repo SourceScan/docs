@@ -18,18 +18,20 @@ Use a public HTTPS repository pinned with `?rev=` to the full 40-character commi
 
 ## Hosted verifier responses
 
+The table lists selected responses from the hosted verifier.
+
 | Message | HTTP status | Cause and next step |
 | --- | --- | --- |
-| `Could not read the verifier registry for ${accountId}. Please retry later.` | 503 | The registry read failed or returned a malformed reply. The verifier stops before looking up metadata or starting a build. Wait and retry the request. |
+| `Could not read the verifier registry for <account>. Please retry later.` | 503 | The registry read failed or returned a malformed reply. The verifier stops before looking up metadata or starting a build. Wait and retry the request. |
 | `No source metadata found for <account>` | 400 | The metadata read returned no metadata or no `build_info`. [Check the deployed metadata](#no-source-metadata-or-build-info). |
+| `Block <n> is older than the verified record for <account> at block <m>. Verify at block <m> or later.` | 409 | The deployed hash differs from the recorded hash, and the pinned block is below the record's `block_height`. Choose the recorded height or a later one. Omit `blockId` to use the latest finalized block. |
 | `Source snapshot must use git+ URL format` | 400 | The snapshot is not a `git+` URL, for example an `ipfs://` reference. |
 | `Source snapshot must pin a full 40-character commit SHA` | 400 | No commit, or a short or symbolic one such as a branch name. |
 | `Source snapshot must not contain conflicting commit SHAs` | 400 | The `?rev=` query parameter and `#` fragment pin different commits. Keep only `?rev=` with the correct full SHA. |
 | `Repository URL must use HTTPS or SSH` | 400 | Another scheme, such as `http://` or `file://`. |
 | `Repository URL must not contain secrets` | 400 | A password in the URL or a user name in an HTTPS URL. |
 | `Repository is not publicly accessible: <repository URL>. Contract verification requires public repositories.` | 400 | Git could not authenticate or find the repository. |
-| `Block ${blockHeight} is older than the verified record for ${accountId} at block ${recordHeight}. Verify at block ${recordHeight} or later.` | 409 | The deployed hash differs from the recorded hash, and the pinned block is below the record's `block_height`. Choose the recorded height or a later one. Omit `blockId` to use the latest finalized block. |
-| `Pre-verification checks failed: ...` | 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
+| `Pre-verification checks failed: <error>` | 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
 | `Contract verification failed` | 400 | NEAR CLI did not report a match, or the rebuilt hash differs from the deployed hash at the verification block. [Compare the hashes](#rebuilt-and-deployed-hashes-differ). |
 | Any other message with HTTP 500 | 500 | Read the error for the cause. The rebuild, IPFS archive or registry write can fail. If NEAR CLI rejects a snapshot pinned only by `#SHA` or using `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=`. |
 
