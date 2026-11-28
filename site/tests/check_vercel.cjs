@@ -28,10 +28,12 @@ test("only current production HTML pages have analytics", () => {
 });
 
 const page = readFileSync(join(production, "quickstart", "index.html"), "utf8");
-const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)[1];
-const bootstrap = page.match(/<script>([\s\S]*?)<\/script>/)[1];
+const canonical = page.match(/<link rel="canonical" href="([^"]+)"/)?.[1];
+const bootstrap = page.match(/<script>([\s\S]*?)<\/script>/)?.[1];
 
 function loadAnalytics(url, referrer = "") {
+  assert(canonical, "Production quickstart is missing its canonical URL");
+  assert(bootstrap, "Production quickstart is missing the Vercel Web Analytics bootstrap");
   const loaded = [];
   const window = {};
   const document = {

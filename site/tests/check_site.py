@@ -63,6 +63,8 @@ def main():
                         help="require robots.txt to disallow crawling and every page to carry noindex")
     parser.add_argument("--expect-site-url", default="",
                         help="require canonical links and sitemaps for this public base URL")
+    parser.add_argument("--expect-analytics", action="store_true",
+                        help="require the Vercel Web Analytics bootstrap on every current docs page")
     args = parser.parse_args()
     dist = args.dist.resolve()
     site_url = args.expect_site_url.rstrip("/")
@@ -172,6 +174,12 @@ def main():
                 failures.append(f"{f.relative_to(dist)}: canonical {canonical}, expected {expected}")
         elif canonical:
             failures.append(f"{f.relative_to(dist)}: canonical present without a site URL")
+        if args.expect_analytics:
+            scripts = re.findall(r"<script\b[^>]*>(.*?)</script>", text, re.DOTALL)
+            bootstraps = sum("/_vercel/insights/script.js" in script for script in scripts)
+            if bootstraps != 1:
+                failures.append(f"{f.relative_to(dist)}: expected one Vercel Web Analytics bootstrap, "
+                                f"found {bootstraps}. Build with --analytics.")
     if site_url:
         for name in ("sitemap.xml", "sitemap-pages.xml"):
             sitemap = dist / name
