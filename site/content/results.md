@@ -48,7 +48,7 @@ NearBlocks uses the first record returned for the deployed hash, so an account c
 
 ## After a redeploy
 
-A redeploy does not revoke or update a record. The registry keeps the old record until a new verification for that account replaces it, and explorers compare hashes when you view the page, so a match becomes a mismatch. No automatic re-verification is confirmed; see [support status](support.md#features).
+A redeploy leaves the record in place. Its verification details stay the same until another successful verification for that account. Explorers compare hashes when you view the page, so a deployment of different code turns a match into a mismatch. See [support status](support.md#features) for automatic re-verification.
 
 This is common. On 23 November 2026, a read-only comparison of every mainnet record with the code each account runs, using `view_code`, found 77 matches, 26 mismatches, 3 accounts that run no contract and 9 accounts that no longer exist. On testnet, 134 of 161 records matched. Twelve of the mainnet matches are accounts that run a global contract; a check based on `view_account` would have reported them as having no contract.
 

@@ -21,7 +21,7 @@ Find an account's deployed code hash, its verification record and the archived s
 
 ### [Read a result](results.md)
 
-What match, mismatch, not verified and unavailable mean, and what a match does not prove.
+What match, mismatch, not verified, not deployed and unavailable mean, and what a match does not prove.
 
 ### [Registry and API](api.md)
 

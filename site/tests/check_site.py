@@ -65,6 +65,8 @@ def main():
                         help="require canonical links and sitemaps for this public base URL")
     args = parser.parse_args()
     dist = args.dist.resolve()
+    site_url = args.expect_site_url.rstrip("/")
+    site_path = urlsplit(site_url).path
     failures, checked = [], {"internal targets": set(), "fragments": 0}
     parsed = {}
 
@@ -84,6 +86,8 @@ def main():
             return
         if parts.path:
             path = posixpath.normpath(urljoin(base_path, parts.path))
+            if site_path and parts.path.startswith(site_path + "/"):
+                path = path.removeprefix(site_path) or "/"
             if parts.path.endswith("/") and not path.endswith("/"):
                 path += "/"
         else:
@@ -139,8 +143,18 @@ def main():
                     failures.append(f"{rel}: contains local reference {needle!r}")
     if not (dist / ".nojekyll").is_file():
         failures.append("missing .nojekyll")
+    not_found = dist / "404.html"
+    if not_found not in html_files:
+        failures.append("missing 404.html")
+    else:
+        links = page(not_found).links
+        if ("a", site_path + "/") not in links or ("link", site_path + "/assets/docs.css") not in links:
+            failures.append("404.html must link to the docs index and stylesheet with root-relative URLs")
+        if '<meta name="robots" content="noindex">' not in not_found.read_text(encoding="utf-8"):
+            failures.append("404.html: missing noindex")
     robots = (dist / "robots.txt").read_text(encoding="utf-8")
-    current_pages = [f for f in html_files if 'id="replacement"' not in f.read_text(encoding="utf-8")]
+    current_pages = [f for f in html_files
+                     if f != not_found and 'id="replacement"' not in f.read_text(encoding="utf-8")]
     if args.expect_noindex:
         if "Disallow: /" not in robots or "Sitemap:" in robots:
             failures.append("robots.txt does not disallow all crawling")
@@ -149,7 +163,6 @@ def main():
                 failures.append(f"{f.relative_to(dist)}: missing noindex")
     elif "Disallow: /" in robots:
         failures.append("robots.txt disallows crawling in an indexable build")
-    site_url = args.expect_site_url.rstrip("/")
     for f in current_pages:
         text = f.read_text(encoding="utf-8")
         canonical = re.findall(r'<link rel="canonical" href="([^"]+)">', text)
@@ -206,7 +219,7 @@ def main():
 
         current = ["/"] + [f"/{p.relative_to(dist).parent.as_posix()}/" for p in dist.glob("*/index.html")
                            if (dist / p.relative_to(dist).parent.as_posix()).with_suffix(".md").exists()]
-        for path in current + ["/llms.txt", "/llms-full.txt", "/robots.txt"]:
+        for path in current + ["/404.html", "/llms.txt", "/llms-full.txt", "/robots.txt"]:
             status, _, _, _ = get(path)
             if status != 200:
                 failures.append(f"HTTP {status}: {path}")

@@ -6,7 +6,7 @@ Write the image name exactly as `sourcescan/cargo-near` or `ghcr.io/near/cargo-n
 
 ## Docker Hub or GHCR
 
-Two image families are accepted for verification. Both are published for `linux/amd64`.
+NEAR CLI 0.31.0 and later allow both image families for local verification. Both are published for `linux/amd64`. Hosted verification of GHCR builds is **Unconfirmed**.
 
 | | Docker Hub | GitHub Container Registry (GHCR) |
 | --- | --- | --- |
@@ -25,7 +25,7 @@ Use GHCR `ghcr.io/near/cargo-near` when you want NEAR's own builder and can veri
 | --- | --- | --- |
 | `near contract verify` in NEAR CLI 0.31.0 and later | **Verified** | **Verified** |
 | `near contract verify` in NEAR CLI 0.21.0 to 0.30.x | **Verified** | **Unsupported** |
-| Hosted SourceScan verifier, used by NearBlocks, running NEAR CLI 0.31.1 on 25 November 2026 | **Verified** | **Unconfirmed**: allowed, not yet tested end to end |
+| Hosted SourceScan verifier, used by NearBlocks, running NEAR CLI 0.31.1 on 25 November 2026 | **Verified** | **Unconfirmed** |
 | Any other image | **Unsupported** | **Unsupported** |
 
 NEAR CLI checks the image name against an exact-match allowlist before building. The `verify` command has had one since it first shipped in NEAR CLI 0.21.0, naming only `sourcescan/cargo-near`; [NEAR CLI 0.31.0](https://github.com/near/near-cli-rs/releases/tag/v0.31.0) added the GHCR image ([allowlist in 0.31.1](https://github.com/near/near-cli-rs/blob/5cdedc38e09b23b84ae9d69f6abbb26568dda579/src/commands/contract/verify/mod.rs#L224-L236), [exact match](https://github.com/near/near-verify-rs/blob/2dc29f6408c72a96ac17becef3384c5152d09867/src/types/contract_source_metadata/validate.rs#L59-L72)). The `--no-image-whitelist` flag skips the check for a local rebuild only, and the hosted verifier does not use it.

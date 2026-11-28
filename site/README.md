@@ -27,10 +27,10 @@ Run `node site/tests/check_vercel.cjs PROD PREVIEW` with the production and prev
 
 ## Manual production upload
 
-Build into a new or empty output directory. A production build includes the public canonical URLs, both sitemaps and an indexable robots file; do not promote the noindex preview.
+Build into a new or empty output directory. Use `--analytics` to include Vercel Web Analytics alongside the public canonical URLs, both sitemaps and an indexable robots file.
 
 ```sh
-python3 site/build.py --site-url https://docs.sourcescan.dev --out dist/release/public
+python3 site/build.py --site-url https://docs.sourcescan.dev --analytics --out dist/release/public
 python3 site/tests/check_site.py dist/release/public --expect-site-url https://docs.sourcescan.dev
 cp site/deploy/vercel.json dist/release/
 ```

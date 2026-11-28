@@ -21,7 +21,7 @@ test("only current production HTML pages have analytics", () => {
   for (const directory of [production, preview]) {
     for (const file of readdirSync(directory, { recursive: true }).filter(file => file.endsWith(".html"))) {
       const html = readFileSync(join(directory, file), "utf8");
-      const enabled = directory === production && !html.includes('id="replacement"');
+      const enabled = directory === production && file !== "404.html" && !html.includes('id="replacement"');
       assert.equal(html.split(endpoint).length - 1, Number(enabled), `${directory}/${file}`);
     }
   }

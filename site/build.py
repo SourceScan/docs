@@ -254,6 +254,35 @@ def build_pages(out, pages, site_url, noindex, analytics):
         write(out, page + ".md", plain_markdown(raw))
 
 
+def build_not_found(out, site_url):
+    # Vercel serves this file at the missing URL, which may be several levels deep.
+    root = escape(urlsplit(site_url).path, quote=True)
+    write(out, "404.html", f"""<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Page not found | SourceScan Docs</title>
+  <link rel="icon" href="{root}/assets/sourcescan.png" type="image/png">
+  <link rel="stylesheet" href="{root}/assets/docs.css">
+</head>
+<body class="not-found">
+  <header class="site-header">
+    <a class="brand" href="{root}/">
+      <img src="{root}/assets/sourcescan.png" alt="" width="28" height="28">
+      <span>SourceScan <span class="brand-docs">Docs</span></span>
+    </a>
+  </header>
+  <main id="main">
+    <h1>Page not found</h1>
+    <p><a href="{root}/">Go to the documentation index</a></p>
+  </main>
+</body>
+</html>
+""")
+
+
 def build_aliases(out, site_url):
     source_anchors = rows("legacy-anchors.tsv")
     for row in rows("legacy-paths.tsv"):
@@ -357,6 +386,7 @@ def main():
     pages = {page: (SOURCE / "content" / (page + ".md")).read_text(encoding="utf-8")
              for page in PAGES}
     build_pages(out, pages, site_url, args.noindex, args.analytics)
+    build_not_found(out, site_url)
     build_aliases(out, site_url)
     build_indexes(out, pages, site_url, args.noindex)
     shutil.copytree(SOURCE / "assets", out / "assets")
