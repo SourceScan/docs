@@ -27,9 +27,9 @@ Use a public HTTPS repository pinned with `?rev=` to the full 40-character commi
 | `Repository is not publicly accessible: <repository URL>. Contract verification requires public repositories.` | 400 | Git could not authenticate or find the repository. |
 | `Pre-verification checks failed: ...` | 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
 | `Contract verification failed` | 400 | NEAR CLI did not report a match, or the rebuilt hash differs from the deployed hash at the verification block. [Compare the hashes](#rebuilt-and-deployed-hashes-differ). |
-| Other error messages | 500 | Read the error for the cause. The rebuild, IPFS archive or registry write can fail. If NEAR CLI rejects a snapshot pinned only by `#SHA` or using `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=`. |
+| Any other message with HTTP 500 | 500 | Read the error for the cause. The rebuild, IPFS archive or registry write can fail. If NEAR CLI rejects a snapshot pinned only by `#SHA` or using `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=`. |
 
-[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/services/github/github.service.ts), [pre-verification](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/controllers/verify/verify.controller.ts#L111-L232) and [rebuild and record write](https://github.com/SourceScan/verifier-back/blob/787aa12cc918b637e4a2ed176b0118fcdc1e96ec/nest/src/controllers/verify/verify.controller.ts#L234-L340)
+[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/services/github/github.service.ts), [pre-verification](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L101-L200) and [rebuild and record write](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L202-L309)
 
 ## Image cannot be pulled or build fails
 
