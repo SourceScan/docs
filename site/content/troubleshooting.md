@@ -6,7 +6,7 @@ Find the symptom, then work through the checks in order. Most failures come from
 
 Confirm the account and network, and that the deployment completed. [Read the deployed metadata](lookup.md#2-read-the-build-metadata) and check that it lists NEP-330 and includes `build_info`.
 
-NearBlocks shows no verification banner when it gets no NEP-330 metadata. That happens when the contract declares none, and also when NearBlocks' metadata call fails or takes longer than 5 seconds, so reload the page or check with RPC before concluding anything. If the metadata lists NEP-330 but has no `build_info`, NearBlocks still shows its **Verify and Publish** prompt, but **Verify Contract** stays disabled.
+The NearBlocks **Contract Code** page shows no verification banner when it gets no NEP-330 metadata. That happens when the contract declares none, and also when NearBlocks' metadata call fails or takes longer than 5 seconds, so reload the page or check with RPC before concluding anything. If the metadata lists NEP-330 but has no `build_info`, the code page can still show **Verify and Publish**. On the verification page, **Verify Contract** stays disabled.
 
 If the deployed WASM lacks these fields, it cannot be verified as it stands: rebuild with the [reproducible build steps](quickstart.md#pin-the-source-and-build) and deploy again.
 
@@ -14,19 +14,22 @@ If the deployed WASM lacks these fields, it cannot be verified as it stands: reb
 
 Check the repository and exact commit in `source_code_snapshot`. Open both from a signed-out browser session. Make sure all build inputs are committed and every dependency can be fetched publicly. Keep credentials out of commits and build inputs.
 
-Use a public HTTPS repository pinned with `?rev=` to the full 40-character commit, as `git+https://github.com/OWNER/REPO?rev=COMMIT`; see [source snapshots](how-verification-works.md#source-snapshots). The verifier's answers tell you which rule failed.
+Use a public HTTPS repository pinned with `?rev=` to the full 40-character commit, as `git+https://github.com/OWNER/REPO?rev=COMMIT`. See [source snapshots](how-verification-works.md#source-snapshots). The table lists selected responses from the hosted verifier.
 
-| Message | Cause |
-| --- | --- |
-| `Source snapshot must use git+ URL format` | The snapshot is not a `git+` URL, for example an `ipfs://` reference. |
-| `Source snapshot must pin a full 40-character commit SHA` | No commit, or a short or symbolic one such as a branch name. |
-| `Repository URL must use HTTPS or SSH` | Another scheme, such as `http://` or `file://`. |
-| `Repository URL must not contain secrets` | A user name or password in the URL. |
-| `Repository is not publicly accessible` | The repository is private or does not exist. |
-| `Pre-verification checks failed: ...` with HTTP 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
-| A NEAR CLI error with HTTP 500, after the checks above pass | Read the error for the cause. If the snapshot is pinned only by `#SHA` or uses `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=` instead. These forms can pass the format checks but fail the rebuild. |
+| Message | HTTP status | Cause |
+| --- | --- | --- |
+| `No source metadata found for <account>` | 400 | The metadata read returned no metadata or no `build_info`. [Check the deployed metadata](#no-source-metadata-or-build-info). |
+| `Source snapshot must use git+ URL format` | 400 | The snapshot is not a `git+` URL, for example an `ipfs://` reference. |
+| `Source snapshot must pin a full 40-character commit SHA` | 400 | No commit, or a short or symbolic one such as a branch name. |
+| `Source snapshot must not contain conflicting commit SHAs` | 400 | The `?rev=` query parameter and `#` fragment pin different commits. Keep only `?rev=` with the correct full SHA. |
+| `Repository URL must use HTTPS or SSH` | 400 | Another scheme, such as `http://` or `file://`. |
+| `Repository URL must not contain secrets` | 400 | A password in the URL or a user name in an HTTPS URL. |
+| `Repository is not publicly accessible: <repository URL>. Contract verification requires public repositories.` | 400 | Git could not authenticate or find the repository. |
+| `Pre-verification checks failed: ...` | 500 | Another failure before the rebuild, such as a commit that is not in the public repository, or an RPC read that failed, including for a `blockId` the verifier's RPC nodes no longer serve. |
+| `Contract verification failed` | 400 | NEAR CLI did not report a match, or the rebuilt hash differs from the deployed hash at the verification block. [Compare the hashes](#rebuilt-and-deployed-hashes-differ). |
+| Any other message with HTTP 500 | 500 | Read the error for the cause. The rebuild, IPFS archive or registry write can fail. If NEAR CLI rejects a snapshot pinned only by `#SHA` or using `git@host:owner/repo`, use a public HTTPS URL pinned with `?rev=`. |
 
-[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/services/github/github.service.ts) and [pre-verification](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L101-L200)
+[Snapshot checks](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/services/github/github.service.ts), [pre-verification](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L101-L200) and [rebuild and record write](https://github.com/SourceScan/verifier-back/blob/0fad9fde2ccdba7e15bf8aef88bd770fdd9f14bd/nest/src/controllers/verify/verify.controller.ts#L202-L309)
 
 ## Image cannot be pulled or build fails
 

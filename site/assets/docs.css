@@ -220,8 +220,8 @@ blockquote p { margin: .25rem 0; }
 .pager-label { display: block; margin-bottom: .15rem; color: var(--muted); font-size: .8rem; font-weight: 500; }
 .pager-next { grid-column: 2; text-align: right; }
 
-/* Forwarding pages for old GitBook paths */
-.moved main { max-width: 40rem; margin: 4rem auto; padding: 0 1rem; }
+/* Legacy forwarding and error pages */
+.moved main, .not-found main { max-width: 40rem; margin: 4rem auto; padding: 0 1rem; }
 
 @media (max-width: 46rem) {
   .layout { grid-template-columns: minmax(0, 1fr); padding-top: 1rem; gap: 1.25rem; }

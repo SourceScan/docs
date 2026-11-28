@@ -27,12 +27,12 @@ Run `node site/tests/check_vercel.cjs PROD PREVIEW` with the production and prev
 
 ## Manual production upload
 
-Build into a new or empty output directory. A production build includes the public canonical URLs, both sitemaps and an indexable robots file; do not promote the noindex preview.
+Build into a new or empty output directory. `--site-url` adds public canonical URLs and both sitemaps. The production build allows crawling and lists the sitemap in `robots.txt`. `--analytics` adds Vercel Web Analytics. Upload the production build only. The preview disallows crawling, marks pages `noindex`, and omits analytics.
 
 ```sh
-python3 site/build.py --site-url https://docs.sourcescan.dev --out dist/release/public
-python3 site/tests/check_site.py dist/release/public --expect-site-url https://docs.sourcescan.dev
+python3 site/build.py --site-url https://docs.sourcescan.dev --analytics --out dist/release/public &&
+python3 site/tests/check_site.py dist/release/public --expect-site-url https://docs.sourcescan.dev --expect-analytics &&
 cp site/deploy/vercel.json dist/release/
 ```
 
-Use `dist/release/` as the Vercel upload root, with the routing configuration beside `public/`. The generated empty `.nojekyll` can be omitted after validation. Upload only the static output and routing configuration to the docs project.
+Once the check passes, use `dist/release/` as the Vercel upload root, with the routing configuration beside `public/`. The generated empty `.nojekyll` can be omitted after validation. Upload only the static output and routing configuration to the docs project.

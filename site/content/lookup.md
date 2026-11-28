@@ -105,7 +105,7 @@ The output above omits the `link` field. If `jq` reports `implode input must be 
 ### 3. Read the registry record
 
 ```bash
-ARGS=$(printf '{"account_id":"buildguide.testnet"}' | base64)
+ARGS=$(printf '{"account_id":"buildguide.testnet"}' | base64 | tr -d '\n')
 curl -s https://rpc.testnet.fastnear.com -H 'Content-Type: application/json' -d '{
   "jsonrpc": "2.0", "id": "docs", "method": "query",
   "params": {"request_type": "call_function", "finality": "final",
